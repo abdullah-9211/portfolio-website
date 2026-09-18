@@ -1,26 +1,2027 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Base — site-wide, no light mode, ever */
+  --void: #0a0b0e;
+  --paper: #f5f3ee;
+  --dim: #888d92;
+  --line: #1e2126;
+  --signal: #35e8b8;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-void: var(--void);
+  --color-paper: var(--paper);
+  --color-dim: var(--dim);
+  --color-line: var(--line);
+  --color-signal: var(--signal);
+
+  --font-display: var(--font-bricolage);
+  --font-body: var(--font-archivo);
+  --font-mono: var(--font-jetbrains);
+
+  --radius-card: 12px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--void);
+  color: var(--paper);
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+/* ── Topic-scoped fixed micro-palettes ──────────────────────────────
+   Fixed "plaques" used only within their own section/card, regardless
+   of anything else on the page. Not part of the base theme. */
+
+.gradient-valkrix {
+  background: linear-gradient(135deg, #4f7df3, #a85de8, #e85dbe);
+}
+
+.text-gradient-valkrix {
+  background: linear-gradient(135deg, #4f7df3, #a85de8, #e85dbe);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.card-valkrix {
+  --card-line: #1c1c22;
+  position: relative;
+  overflow: hidden;
+  background: #020203;
+  border-color: var(--card-line);
+}
+
+/* Valkrix's "vibe": a slow-spinning aurora of the brand gradient, heavily
+   blurred, sitting behind the content — a living brand card rather than a
+   static logo plate. Contained by the card's own overflow:hidden, kept
+   subtle (0.28 opacity) so text stays fully legible on top of it. */
+.card-valkrix::before {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  z-index: 0;
+  background: conic-gradient(
+    from 0deg,
+    #4f7df3,
+    #a85de8,
+    #e85dbe,
+    #4f7df3
+  );
+  filter: blur(70px);
+  opacity: 0.28;
+  animation: valkrix-aurora-spin 16s linear infinite;
+}
+
+.card-valkrix > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes valkrix-aurora-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Fact chips, brightened to the card's own Valkrix gradient instead of the
+   site-wide muted gray — same treatment as the Forge card's gold chips. */
+.card-valkrix .venture-chip {
+  /* background-clip:text clips the WHOLE background box to the glyph
+     shapes, so this can't also carry a separate tinted pill fill the way
+     the Forge chips do — border + gradient text only. */
+  background-image: linear-gradient(135deg, #4f7df3, #a85de8, #e85dbe);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  border-color: #3a3550;
+}
+
+.card-forge {
+  --card-bg-1: #241a10;
+  --card-bg-2: #2e2013;
+  --card-line: #3c2c19;
+  --card-accent: #c9a227;
+  background: linear-gradient(180deg, var(--card-bg-1), var(--card-bg-2));
+  border-color: var(--card-line);
+}
+
+/* Fact chips read too dim against the dark-wood card — brighten to the
+   card's own gold accent instead of the site-wide muted gray. */
+.card-forge .venture-chip {
+  color: var(--card-accent);
+  border-color: #6b4f22;
+  background: rgba(201, 162, 39, 0.08);
+}
+
+.card-coffee {
+  --card-bg-1: #2b1810;
+  --card-accent: #e4c9a0;
+  --card-accent-2: #c97c3d;
+  --card-line: #4a3223;
+  background: var(--card-bg-1);
+  border-color: var(--card-line);
+}
+
+.card-gaming {
+  --card-bg-1: #0b1e33;
+  --card-bg-2: #0a0f1a;
+  --card-accent: #0f6fd1;
+  --card-accent-2: #4cd3ff;
+  --card-accent-3: #e60012;
+  --card-line: #1c3a56;
+  background: linear-gradient(160deg, var(--card-bg-1), var(--card-bg-2));
+  border-color: var(--card-line);
+}
+
+.card-sports {
+  --card-bg-1: #2a160b;
+  --card-bg-2: #1c0f08;
+  --card-accent: #e8720c;
+  --card-accent-2: #edede8;
+  --card-line: #4a2c17;
+  background: linear-gradient(160deg, var(--card-bg-1), var(--card-bg-2));
+  border-color: var(--card-line);
+}
+
+/* Interactive hover treatment for off-duty cards specifically. */
+.offduty-card {
+  transition: border-color 0.25s ease, transform 0.25s ease;
+}
+
+.offduty-card:hover {
+  border-color: var(--card-accent);
+  transform: translateY(-3px);
+}
+
+.offduty-card .offduty-icon {
+  color: var(--card-accent);
+  transition: transform 0.25s ease, color 0.25s ease;
+}
+
+.offduty-card:hover .offduty-icon {
+  color: var(--card-accent-2);
+  transform: scale(1.08);
+}
+
+/* ── Tech chips (skills marquee) ────────────────────────────────────
+   Each chip carries its own --tech-color inline; default state is muted,
+   hover/focus swaps the icon + label to the tech's real brand color. */
+
+.tech-chip {
+  color: var(--dim);
+  background: transparent;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.tech-chip:hover,
+.tech-chip:focus-visible {
+  color: var(--tech-fg);
+  background: var(--tech-color);
+  border-color: var(--tech-color);
+}
+
+.tech-chip svg {
+  fill: currentColor;
+  transition: fill 0.2s ease;
+}
+
+/* ── Marquee ─────────────────────────────────────────────────────── */
+
+@keyframes marquee-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.marquee-track {
+  animation: marquee-left 28s linear infinite;
+}
+
+.marquee-track--reverse {
+  animation-name: marquee-right;
+}
+
+.marquee-row:hover .marquee-track,
+.marquee-row:focus-within .marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+    transform: none;
+    flex-wrap: wrap;
+  }
+
+  .marquee-track [data-marquee-duplicate] {
+    display: none;
+  }
+}
+
+/* ── Hero entrance ───────────────────────────────────────────────────
+   One-shot stagger on page load — pure CSS animation, so it runs
+   identically whether JS is available or not (CSS animations aren't
+   JS-triggered). The un-animated base state (opacity:1) is the correct
+   fallback appearance if animations don't run at all for any reason. */
+
+.hero-stagger-item {
+  opacity: 1;
+  animation: hero-enter 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--stagger, 0) * 0.09s);
+}
+
+@keyframes hero-enter {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Hero glow ────────────────────────────────────────────────────────
+   Cursor-reactive ambient glow behind the hero content. Its color is
+   exactly synced to the word-cycle's own timing (each word is fully
+   visible during its own [i*20+8%, i*20+14%] window — see
+   word-cycle-turn below), holding each color through that same window
+   and transitioning only during the gap between words, so the halo
+   color always matches whichever word is actually on screen. Position
+   tracking needs the tiny bit of JS in HeroGlow.tsx, but the color-cycle
+   itself is pure CSS and keeps running (centered, unmoving) without it. */
+
+@property --glow-color {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #35e8b8;
+}
+
+.hero-glow {
+  background: radial-gradient(
+    560px circle at var(--mx, 60%) var(--my, 35%),
+    color-mix(in srgb, var(--glow-color) 16%, transparent),
+    transparent 70%
+  );
+  transition: background-position 0.3s ease;
+  animation: glow-color-cycle calc(5 * 2s) infinite;
+}
+
+/* "See the work" CTA — same --glow-color timeline as the halo and the
+   word-cycle (each element runs its own instance of the identical
+   keyframe animation, started at the same moment on page load, so they
+   stay in sync without needing custom-property inheritance across the
+   DOM). Whichever word is showing, the button matches it. */
+.hero-cta-primary {
+  color: var(--glow-color);
+  border-color: var(--glow-color);
+  background: color-mix(in srgb, var(--glow-color) 12%, transparent);
+  animation: glow-color-cycle calc(5 * 2s) infinite;
+}
+
+.hero-cta-primary:hover {
+  background: color-mix(in srgb, var(--glow-color) 22%, transparent);
+}
+
+@keyframes glow-color-cycle {
+  0%,
+  14% {
+    --glow-color: #35e8b8; /* Engineer — mint, window 8%-14% */
+  }
+  28%,
+  34% {
+    --glow-color: #a85de8; /* Founder — Valkrix violet, window 28%-34% */
+  }
+  48%,
+  54% {
+    --glow-color: #e8720c; /* Baller — court orange, window 48%-54% */
+  }
+  68%,
+  74% {
+    --glow-color: #e4c9a0; /* Coffee Guy — crema, window 68%-74% */
+  }
+  88%,
+  94% {
+    --glow-color: #4cd3ff; /* Gamer — console cyan, window 88%-94% */
+  }
+  100% {
+    --glow-color: #35e8b8;
+  }
+}
+
+/* ── Grain ────────────────────────────────────────────────────────────
+   Very low-opacity noise for tactility — inline SVG turbulence, no
+   asset file, applied once site-wide. */
+
+.grain-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+}
+
+/* ── Hero word-cycle ─────────────────────────────────────────────────
+   Pure CSS rotator: one shared keyframe, each item phase-shifted by a
+   positive animation-delay of one slot (2s) per index, all on the same
+   total-duration (word-count * 2s) loop — the standard trick for
+   "one thing visible at a time, no JS" text rotators. */
+
+.word-cycle {
+  position: relative;
+  display: inline-block;
+  height: 1.15em;
+  overflow: hidden;
+}
+
+.word-cycle-item {
+  position: absolute;
+  inset: 0;
+  left: 0;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(14px);
+  animation: word-cycle-turn calc(5 * 2s) infinite both;
+  animation-delay: calc(var(--i) * 2s);
+}
+
+@keyframes word-cycle-turn {
+  0%,
+  3% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  8%,
+  14% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  19%,
+  100% {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+}
+
+/* ── Scroll cue ──────────────────────────────────────────────────── */
+
+@keyframes scroll-cue-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(6px);
+    opacity: 1;
+  }
+}
+
+.scroll-cue-arrow {
+  animation: scroll-cue-bounce 1.8s ease-in-out infinite;
+}
+
+/* ── Off-duty card illustrations ─────────────────────────────────────
+   Shared building blocks for the four Off-duty card illustrations
+   (CoffeeRosetta, BasketballAnimation, RunningAnimation,
+   GamingPlatformMarks). Each card auto-plays its illustration once on
+   scroll-into-view and replays it on every click after that — see
+   useCardAnimation.ts for the wiring. Every element's *base* CSS (no
+   modifier class) always equals the artwork's own complete, correct
+   resting frame, so SSR/no-JS/pre-hydration/reduced-motion output is
+   never a blank or half-drawn placeholder — only once JS has mounted
+   and motion is allowed does a component add the "--hidden" pre-play
+   class, then swap to the "--play" class (an `animation: … both`) to
+   reveal it, exactly the seal-thump precedent above, generalized. */
+
+/* Stroke draw-in — coffee's rosetta linework and running's speed lines
+   both use this: a path with pathLength=1 + strokeDasharray=1 animates
+   from fully undrawn to fully drawn. */
+@keyframes offduty-draw-in {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.offduty-stroke-hidden {
+  stroke-dashoffset: 1;
+}
+
+.offduty-stroke-play {
+  animation-name: offduty-draw-in;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+/* Pop-in — coffee's finishing dot and both gaming marks share this: a
+   small bounce from hidden to settled. */
+@keyframes offduty-pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.offduty-pop-hidden {
+  opacity: 0;
+  transform: scale(0.4);
+}
+
+.offduty-pop-play {
+  animation-name: offduty-pop-in;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+/* Coffee — the hand+pitcher rig in CoffeeRosetta.tsx: settle above the
+   cup → tilt into a full pour → hold while the stream lands and the
+   rosetta draws in (see POUR_LAND_OFFSET in that file) → untilt, lift
+   away, and settle back to rest. All three tracks below share one 3.4s
+   timeline so the tilt, stream and rosetta stay in sync. The pitcher's
+   *base* class carries no transform at all — its static local geometry
+   is already authored in the settled/lifted resting pose, so an identity
+   transform (0,0,0deg, i.e. no class/style) equals that pose, the same
+   "base already equals the animation's own 100% keyframe" convention
+   hoop-root uses — meaning SSR/no-JS/reduced-motion output needs no
+   inline hiding styles. The stream and its landing ripple are transient
+   pour-only props (CoffeeRosetta.tsx omits them entirely, rather than
+   hiding them, whenever `animate` is false), so they only ever need a
+   "--hidden"/"--play" pair, no bare base rule. */
+@keyframes coffee-pitcher-motion {
+  0% {
+    transform: translate(50px, -2px) rotate(-5deg);
+  }
+  15% {
+    transform: translate(45px, 15px) rotate(5deg);
+  }
+  38% {
+    transform: translate(55px, 2px) rotate(70deg);
+  }
+  68% {
+    transform: translate(55px, 2px) rotate(72deg);
+  }
+  82% {
+    transform: translate(48px, -8px) rotate(35deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+.coffee-pitcher--hidden {
+  transform: translate(50px, -2px) rotate(-5deg);
+}
+
+.coffee-pitcher--play {
+  animation: coffee-pitcher-motion 3.4s cubic-bezier(0.33, 0.1, 0.3, 1) both;
+}
+
+@keyframes coffee-stream-motion {
+  0%,
+  24% {
+    opacity: 0;
+    stroke-dashoffset: 1;
+  }
+  38% {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+  68% {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+  80%,
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 0;
+  }
+}
+
+.coffee-stream--hidden {
+  opacity: 0;
+  stroke-dashoffset: 1;
+}
+
+.coffee-stream--play {
+  animation: coffee-stream-motion 3.4s ease-out both;
+}
+
+@keyframes coffee-ripple-motion {
+  0%,
+  36% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  44% {
+    opacity: 0.85;
+    transform: scale(1.15);
+  }
+  56% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+.coffee-ripple--hidden {
+  opacity: 0;
+  transform: scale(0.3);
+}
+
+.coffee-ripple--play {
+  animation: coffee-ripple-motion 3.4s ease-out both;
+}
+
+/* Basketball — a pictogram-style player's full jump-shot sequence: crouch
+   → rise and cock the shooting arm → release with a wrist-snap
+   follow-through → the ball arcs and spins across the banner → it swishes
+   through the net, which ripples → the figure lands in the same
+   follow-through pose the static markup already sits in. All tracks share
+   one 2.8s timeline so the figure, arm and ball stay in sync. Each track's
+   *base* class (applied unconditionally by BasketballAnimation.tsx,
+   independent of whether motion is allowed) sets its resting transform —
+   equal to that track's own 100% keyframe — so SSR/no-JS/reduced-motion
+   output is the complete finished shot with no inline hiding styles;
+   "--hidden" pins a track to its 0% crouch pose and "--play" runs the
+   full keyframes, the same convention as offduty-draw-in/offduty-pop-in
+   above, just with more synchronized parts. */
+
+@keyframes hoop-root-motion {
+  0%,
+  16% {
+    transform: translate(0, 14px) rotate(6deg);
+  }
+  40% {
+    transform: translate(0, -9px) rotate(-3deg);
+  }
+  48% {
+    transform: translate(0, -16px) rotate(-5deg);
+  }
+  64% {
+    transform: translate(0, -6px) rotate(-2deg);
+  }
+  80% {
+    transform: translate(0, 3px) rotate(1deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+.hoop-root--hidden {
+  transform: translate(0, 14px) rotate(6deg);
+}
+
+.hoop-root--play {
+  animation: hoop-root-motion 2.8s cubic-bezier(0.33, 0.1, 0.3, 1) both;
+}
+
+@keyframes hoop-thigh-f-motion {
+  0%,
+  16% {
+    transform: rotate(40deg);
+  }
+  40% {
+    transform: rotate(-4deg);
+  }
+  48% {
+    transform: rotate(-8deg);
+  }
+  64% {
+    transform: rotate(-2deg);
+  }
+  80% {
+    transform: rotate(14deg);
+  }
+  100% {
+    transform: rotate(6deg);
+  }
+}
+
+.hoop-thigh-f {
+  transform: rotate(6deg);
+}
+
+.hoop-thigh-f--hidden {
+  transform: rotate(40deg);
+}
+
+.hoop-thigh-f--play {
+  animation: hoop-thigh-f-motion 2.8s ease-in-out both;
+}
+
+@keyframes hoop-shin-f-motion {
+  0%,
+  16% {
+    transform: rotate(-78deg);
+  }
+  40% {
+    transform: rotate(8deg);
+  }
+  48% {
+    transform: rotate(12deg);
+  }
+  64% {
+    transform: rotate(6deg);
+  }
+  80% {
+    transform: rotate(-4deg);
+  }
+  100% {
+    transform: rotate(2deg);
+  }
+}
+
+.hoop-shin-f {
+  transform: rotate(2deg);
+}
+
+.hoop-shin-f--hidden {
+  transform: rotate(-78deg);
+}
+
+.hoop-shin-f--play {
+  animation: hoop-shin-f-motion 2.8s ease-in-out both;
+}
+
+@keyframes hoop-leg-b-motion {
+  0%,
+  16% {
+    transform: rotate(-28deg);
+  }
+  40% {
+    transform: rotate(-30deg);
+  }
+  48% {
+    transform: rotate(-36deg);
+  }
+  64% {
+    transform: rotate(-20deg);
+  }
+  80% {
+    transform: rotate(-10deg);
+  }
+  100% {
+    transform: rotate(-6deg);
+  }
+}
+
+.hoop-leg-b {
+  transform: rotate(-6deg);
+}
+
+.hoop-leg-b--hidden {
+  transform: rotate(-28deg);
+}
+
+.hoop-leg-b--play {
+  animation: hoop-leg-b-motion 2.8s ease-in-out both;
+}
+
+@keyframes hoop-arm-u-motion {
+  0%,
+  16% {
+    transform: rotate(34deg);
+  }
+  32% {
+    transform: rotate(95deg);
+  }
+  48% {
+    transform: rotate(168deg);
+  }
+  64% {
+    transform: rotate(166deg);
+  }
+  100% {
+    transform: rotate(165deg);
+  }
+}
+
+.hoop-arm-u {
+  transform: rotate(165deg);
+}
+
+.hoop-arm-u--hidden {
+  transform: rotate(34deg);
+}
+
+.hoop-arm-u--play {
+  animation: hoop-arm-u-motion 2.8s cubic-bezier(0.3, 0.1, 0.25, 1) both;
+}
+
+@keyframes hoop-arm-f-motion {
+  0%,
+  16% {
+    transform: rotate(-82deg);
+  }
+  32% {
+    transform: rotate(-42deg);
+  }
+  48% {
+    transform: rotate(10deg);
+  }
+  64% {
+    transform: rotate(4deg);
+  }
+  100% {
+    transform: rotate(5deg);
+  }
+}
+
+.hoop-arm-f {
+  transform: rotate(5deg);
+}
+
+.hoop-arm-f--hidden {
+  transform: rotate(-82deg);
+}
+
+.hoop-arm-f--play {
+  animation: hoop-arm-f-motion 2.8s cubic-bezier(0.3, 0.1, 0.25, 1) both;
+}
+
+@keyframes hoop-ball-hand-motion {
+  0%,
+  44% {
+    opacity: 1;
+  }
+  47%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.hoop-ball-hand--hidden {
+  opacity: 1;
+}
+
+.hoop-ball-hand--play {
+  animation: hoop-ball-hand-motion 2.8s linear both;
+}
+
+@keyframes hoop-ball-flight-motion {
+  0%,
+  44% {
+    opacity: 0;
+    transform: translate(-131px, -89px) rotate(0deg) scale(0.9);
+  }
+  48% {
+    opacity: 1;
+    transform: translate(-131px, -89px) rotate(0deg) scale(0.9);
+  }
+  58% {
+    transform: translate(-74px, -86px) rotate(90deg) scale(0.95);
+  }
+  68% {
+    transform: translate(-34px, -82px) rotate(200deg) scale(1);
+  }
+  76% {
+    transform: translate(-7px, -40px) rotate(300deg) scale(1);
+  }
+  84% {
+    transform: translate(-2px, -8px) rotate(340deg) scale(1.04);
+  }
+  92% {
+    transform: translate(2px, 3px) rotate(360deg) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(360deg) scale(1);
+  }
+}
+
+.hoop-ball-flight--hidden {
+  opacity: 0;
+  transform: translate(-131px, -89px) rotate(0deg) scale(0.9);
+}
+
+.hoop-ball-flight--play {
+  animation: hoop-ball-flight-motion 2.8s linear both;
+}
+
+@keyframes hoop-net-ripple {
+  0%,
+  72% {
+    transform: scaleY(1) scaleX(1);
+  }
+  80% {
+    transform: scaleY(1.22) scaleX(0.88);
+  }
+  88% {
+    transform: scaleY(0.9) scaleX(1.08);
+  }
+  100% {
+    transform: scaleY(1) scaleX(1);
+  }
+}
+
+.hoop-net--play {
+  animation: hoop-net-ripple 2.8s ease-out both;
+}
+
+/* Running — a pictogram runner in full stride crosses the banner and
+   breaks through a finish-line ribbon strung between two poles: three
+   stride cycles of approach (each leg cycling high-knee drive → under-body
+   plant → extended toe-off → recovery fold, arms swinging opposite the
+   legs) → the intact tape vanishes the instant the runner reaches it,
+   while the two torn halves snap outward from the break point and
+   flutter down to hang from their poles → the figure continues through to
+   a settled one-fist-raised finish pose. All tracks share one 3.2s
+   timeline so the legs, arms, root travel and ribbon break stay in sync.
+   Each limb's *base* class (applied unconditionally by RunningAnimation.tsx,
+   independent of whether motion is allowed) sets its resting rotation —
+   equal to that track's own 100% keyframe — and finish-root's local
+   anchor points are themselves authored at the finished, arrived
+   position, so an identity transform already equals that pose; either way
+   SSR/no-JS/reduced-motion output is the complete finished crossing with
+   no inline hiding styles. "--hidden" pins a track to its 0% start-of-race
+   pose and "--play" runs the full keyframes — the same convention
+   BasketballAnimation's hoop-* tracks use, just with two full leg chains
+   instead of one. */
+
+@keyframes finish-root-motion {
+  0% {
+    transform: translate(-285px, 3px) rotate(-6deg);
+  }
+  12% {
+    transform: translate(-245px, 6px) rotate(-3deg);
+  }
+  24% {
+    transform: translate(-200px, -4px) rotate(-7deg);
+  }
+  36% {
+    transform: translate(-160px, 5px) rotate(-3deg);
+  }
+  48% {
+    transform: translate(-125px, 3px) rotate(-6deg);
+  }
+  58% {
+    transform: translate(-105px, 6px) rotate(-3deg);
+  }
+  66% {
+    transform: translate(-94px, -3px) rotate(-9deg);
+  }
+  76% {
+    transform: translate(-55px, 4px) rotate(-4deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+.finish-root--hidden {
+  transform: translate(-285px, 3px) rotate(-6deg);
+}
+
+.finish-root--play {
+  animation: finish-root-motion 3.2s cubic-bezier(0.33, 0.1, 0.3, 1) both;
+}
+
+/* Gait fix: the previous keyframes let the shin (knee) extend almost
+   straight within the first 12% of each stride while the thigh was still
+   barely past its trailing/toe-off angle — the knee was unfolding long
+   before the thigh finished driving forward. Real running keeps the knee
+   folded (a large positive shin rotation, heel drawn up behind) through
+   the ENTIRE forward thigh swing (trailing → passing under the body →
+   peak high-knee) and only extends it late, in the final stretch of the
+   cycle, to reach the foot forward-and-down for footstrike. Rebuilt below
+   with that phase relationship: shin stays folded (~90-100deg) across
+   0-24% while the thigh sweeps from trailing (58deg) through vertical
+   (-8deg) to peak high-knee (-52deg), then only unfolds toward straight
+   (5deg) in the last quarter (36%) as the thigh comes back down for
+   landing. Left leg carries the identical shape, offset by exactly half
+   the 4-keyframe cycle (0%<->24%, 12%<->36%) so the two legs alternate
+   correctly. Final 100% resting angles are unchanged — the client's
+   complaint was about the moving gait, not the settled finish pose. */
+
+@keyframes finish-thigh-r-motion {
+  0% {
+    transform: rotate(58deg);
+  }
+  12% {
+    transform: rotate(-8deg);
+  }
+  24% {
+    transform: rotate(-52deg);
+  }
+  36% {
+    transform: rotate(-15deg);
+  }
+  48% {
+    transform: rotate(58deg);
+  }
+  58% {
+    transform: rotate(-8deg);
+  }
+  66% {
+    transform: rotate(-52deg);
+  }
+  76% {
+    transform: rotate(-15deg);
+  }
+  100% {
+    transform: rotate(22deg);
+  }
+}
+
+.finish-thigh-r {
+  transform: rotate(22deg);
+}
+
+.finish-thigh-r--hidden {
+  transform: rotate(58deg);
+}
+
+.finish-thigh-r--play {
+  animation: finish-thigh-r-motion 3.2s ease-in-out both;
+}
+
+@keyframes finish-shin-r-motion {
+  0% {
+    transform: rotate(90deg);
+  }
+  12% {
+    transform: rotate(100deg);
+  }
+  24% {
+    transform: rotate(55deg);
+  }
+  36% {
+    transform: rotate(5deg);
+  }
+  48% {
+    transform: rotate(90deg);
+  }
+  58% {
+    transform: rotate(100deg);
+  }
+  66% {
+    transform: rotate(55deg);
+  }
+  76% {
+    transform: rotate(5deg);
+  }
+  100% {
+    transform: rotate(-18deg);
+  }
+}
+
+.finish-shin-r {
+  transform: rotate(-18deg);
+}
+
+.finish-shin-r--hidden {
+  transform: rotate(90deg);
+}
+
+.finish-shin-r--play {
+  animation: finish-shin-r-motion 3.2s ease-in-out both;
+}
+
+@keyframes finish-thigh-l-motion {
+  0% {
+    transform: rotate(-52deg);
+  }
+  12% {
+    transform: rotate(-15deg);
+  }
+  24% {
+    transform: rotate(58deg);
+  }
+  36% {
+    transform: rotate(-8deg);
+  }
+  48% {
+    transform: rotate(-52deg);
+  }
+  58% {
+    transform: rotate(-15deg);
+  }
+  66% {
+    transform: rotate(58deg);
+  }
+  76% {
+    transform: rotate(-8deg);
+  }
+  100% {
+    transform: rotate(-38deg);
+  }
+}
+
+.finish-thigh-l {
+  transform: rotate(-38deg);
+}
+
+.finish-thigh-l--hidden {
+  transform: rotate(-52deg);
+}
+
+.finish-thigh-l--play {
+  animation: finish-thigh-l-motion 3.2s ease-in-out both;
+}
+
+@keyframes finish-shin-l-motion {
+  0% {
+    transform: rotate(55deg);
+  }
+  12% {
+    transform: rotate(5deg);
+  }
+  24% {
+    transform: rotate(90deg);
+  }
+  36% {
+    transform: rotate(100deg);
+  }
+  48% {
+    transform: rotate(55deg);
+  }
+  58% {
+    transform: rotate(5deg);
+  }
+  66% {
+    transform: rotate(90deg);
+  }
+  76% {
+    transform: rotate(100deg);
+  }
+  100% {
+    transform: rotate(42deg);
+  }
+}
+
+.finish-shin-l {
+  transform: rotate(42deg);
+}
+
+.finish-shin-l--hidden {
+  transform: rotate(55deg);
+}
+
+.finish-shin-l--play {
+  animation: finish-shin-l-motion 3.2s ease-in-out both;
+}
+
+@keyframes finish-arm-u-l-motion {
+  0% {
+    transform: rotate(55deg);
+  }
+  12% {
+    transform: rotate(15deg);
+  }
+  24% {
+    transform: rotate(-45deg);
+  }
+  36% {
+    transform: rotate(15deg);
+  }
+  48% {
+    transform: rotate(55deg);
+  }
+  58% {
+    transform: rotate(15deg);
+  }
+  66% {
+    transform: rotate(-45deg);
+  }
+  76% {
+    transform: rotate(15deg);
+  }
+  100% {
+    transform: rotate(-30deg);
+  }
+}
+
+.finish-arm-u-l {
+  transform: rotate(-30deg);
+}
+
+.finish-arm-u-l--hidden {
+  transform: rotate(55deg);
+}
+
+.finish-arm-u-l--play {
+  animation: finish-arm-u-l-motion 3.2s ease-in-out both;
+}
+
+@keyframes finish-arm-f-l-motion {
+  0% {
+    transform: rotate(-80deg);
+  }
+  12% {
+    transform: rotate(-45deg);
+  }
+  24% {
+    transform: rotate(-50deg);
+  }
+  36% {
+    transform: rotate(-45deg);
+  }
+  48% {
+    transform: rotate(-80deg);
+  }
+  58% {
+    transform: rotate(-45deg);
+  }
+  66% {
+    transform: rotate(-50deg);
+  }
+  76% {
+    transform: rotate(-45deg);
+  }
+  100% {
+    transform: rotate(-40deg);
+  }
+}
+
+.finish-arm-f-l {
+  transform: rotate(-40deg);
+}
+
+.finish-arm-f-l--hidden {
+  transform: rotate(-80deg);
+}
+
+.finish-arm-f-l--play {
+  animation: finish-arm-f-l-motion 3.2s ease-in-out both;
+}
+
+@keyframes finish-arm-u-r-motion {
+  0% {
+    transform: rotate(-45deg);
+  }
+  12% {
+    transform: rotate(15deg);
+  }
+  24% {
+    transform: rotate(55deg);
+  }
+  36% {
+    transform: rotate(15deg);
+  }
+  48% {
+    transform: rotate(-45deg);
+  }
+  58% {
+    transform: rotate(15deg);
+  }
+  66% {
+    transform: rotate(55deg);
+  }
+  76% {
+    transform: rotate(15deg);
+  }
+  100% {
+    transform: rotate(140deg);
+  }
+}
+
+.finish-arm-u-r {
+  transform: rotate(140deg);
+}
+
+.finish-arm-u-r--hidden {
+  transform: rotate(-45deg);
+}
+
+.finish-arm-u-r--play {
+  animation: finish-arm-u-r-motion 3.2s ease-in-out both;
+}
+
+@keyframes finish-arm-f-r-motion {
+  0% {
+    transform: rotate(-50deg);
+  }
+  12% {
+    transform: rotate(-45deg);
+  }
+  24% {
+    transform: rotate(-80deg);
+  }
+  36% {
+    transform: rotate(-45deg);
+  }
+  48% {
+    transform: rotate(-50deg);
+  }
+  58% {
+    transform: rotate(-45deg);
+  }
+  66% {
+    transform: rotate(-80deg);
+  }
+  76% {
+    transform: rotate(-45deg);
+  }
+  100% {
+    transform: rotate(20deg);
+  }
+}
+
+.finish-arm-f-r {
+  transform: rotate(20deg);
+}
+
+.finish-arm-f-r--hidden {
+  transform: rotate(-50deg);
+}
+
+.finish-arm-f-r--play {
+  animation: finish-arm-f-r-motion 3.2s ease-in-out both;
+}
+
+@keyframes finish-tape-motion {
+  0%,
+  64% {
+    opacity: 1;
+  }
+  66%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.finish-tape--hidden {
+  opacity: 1;
+}
+
+.finish-tape--play {
+  animation: finish-tape-motion 3.2s linear both;
+}
+
+@keyframes finish-ribbon-l-motion {
+  0%,
+  64% {
+    opacity: 0;
+    transform: translate(38px, -2px) rotate(5deg);
+  }
+  66% {
+    opacity: 1;
+    transform: translate(38px, -2px) rotate(5deg);
+  }
+  78% {
+    opacity: 1;
+    transform: translate(15px, -15px) rotate(-25deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+.finish-ribbon-l--hidden {
+  opacity: 0;
+  transform: translate(38px, -2px) rotate(5deg);
+}
+
+.finish-ribbon-l--play {
+  animation: finish-ribbon-l-motion 3.2s ease-out both;
+}
+
+@keyframes finish-ribbon-r-motion {
+  0%,
+  64% {
+    opacity: 0;
+    transform: translate(-38px, -2px) rotate(-5deg);
+  }
+  66% {
+    opacity: 1;
+    transform: translate(-38px, -2px) rotate(-5deg);
+  }
+  78% {
+    opacity: 1;
+    transform: translate(-15px, -15px) rotate(25deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+.finish-ribbon-r--hidden {
+  opacity: 0;
+  transform: translate(-38px, -2px) rotate(-5deg);
+}
+
+.finish-ribbon-r--play {
+  animation: finish-ribbon-r-motion 3.2s ease-out both;
+}
+
+@keyframes finish-speedlines-motion {
+  0% {
+    opacity: 0;
+  }
+  8%,
+  50% {
+    opacity: 0.9;
+  }
+  64%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.finish-speedlines {
+  opacity: 0;
+}
+
+.finish-speedlines--hidden {
+  opacity: 0;
+}
+
+.finish-speedlines--play {
+  animation: finish-speedlines-motion 3.2s ease-in-out both;
+}
+
+/* Gaming — idle glow behind each real/homage platform mark in
+   GamingPlatformMarks.tsx. An idle pulse, not a strobe, so the global
+   reduced-motion collapse (iteration-count:1) just settles it at full
+   brightness rather than creating a jarring flash — same treatment the
+   previous console-light-bar pulse used. */
+@keyframes platform-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.platform-glow {
+  animation: platform-glow-pulse 2.4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+/* Gaming — TV-to-logos narrative (GamingPlatformMarks.tsx). Each console
+   silhouette rises up out of the TV screen and travels out to its own
+   brand-mark slot, fading out right as that slot's logo (offduty-pop-in,
+   reused with a retimed delay — see popStyle in the component) pops in —
+   the overlap between the two is the "morph". Every keyframe below is
+   authored as translate/scale OFFSETS relative to the console's own
+   static SVG wrapper, which is already positioned at the final slot — the
+   same static-wrapper/animated-inner-group split BasketballAnimation.tsx
+   uses for its ball-in-flight group — so 100% always lands on translate
+   (0,0), i.e. "arrived at the slot", right before fading out. These
+   groups only ever exist in the DOM while motion is allowed (see the
+   component), so there's no "--base" resting variant to define here. */
+@keyframes gaming-console-ps-motion {
+  0% {
+    opacity: 0;
+    transform: translate(93px, -107px) scale(0.4);
+  }
+  30% {
+    opacity: 1;
+    transform: translate(50px, -148px) scale(0.8);
+  }
+  65% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  82% {
+    opacity: 0.35;
+    transform: translate(0, 0) scale(1.06);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(0, 0) scale(1.1);
+  }
+}
+
+.gaming-console-ps--hidden {
+  opacity: 0;
+  transform: translate(93px, -107px) scale(0.4);
+}
+
+.gaming-console-ps--play {
+  animation: gaming-console-ps-motion 2.3s cubic-bezier(0.3, 0.1, 0.25, 1) both;
+  animation-delay: 0.7s;
+}
+
+@keyframes gaming-console-switch-motion {
+  0% {
+    opacity: 0;
+    transform: translate(-93px, -107px) scale(0.4);
+  }
+  30% {
+    opacity: 1;
+    transform: translate(-50px, -148px) scale(0.8);
+  }
+  65% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  82% {
+    opacity: 0.35;
+    transform: translate(0, 0) scale(1.06);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(0, 0) scale(1.1);
+  }
+}
+
+.gaming-console-switch--hidden {
+  opacity: 0;
+  transform: translate(-93px, -107px) scale(0.4);
+}
+
+.gaming-console-switch--play {
+  animation: gaming-console-switch-motion 2.3s cubic-bezier(0.3, 0.1, 0.25, 1) both;
+  animation-delay: 0.85s;
+}
+
+/* One-shot screen brighten right as the consoles begin to emerge. */
+@keyframes gaming-screen-flash-motion {
+  0%,
+  28% {
+    opacity: 0;
+  }
+  42% {
+    opacity: 0.55;
+  }
+  70%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.gaming-screen-flash--hidden {
+  opacity: 0;
+}
+
+.gaming-screen-flash--play {
+  animation: gaming-screen-flash-motion 1.6s ease-out both;
+  animation-delay: 0.55s;
+}
+
+/* ── Verified seal thump (Certifications) ────────────────────────────
+   One orchestrated landing moment for the credential count's seal
+   glyph — everything else added to that section (the per-row issuer
+   icons) is static color, this is the only thing that moves. The base
+   state (no transform/opacity override — scale 1, rotate 0, opacity 1)
+   already equals the animation's own `100%` keyframe, so pre-hydration,
+   no-JS and reduced-motion output all land on the exact same resting
+   frame the animation would have finished on. */
+
+.verified-seal {
+  transform-origin: center;
+}
+
+.verified-seal--thump {
+  animation: seal-thump 0.7s cubic-bezier(0.22, 1.6, 0.4, 1) both;
+}
+
+@keyframes seal-thump {
+  0% {
+    opacity: 0;
+    transform: scale(1.7) rotate(-16deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(0.92) rotate(5deg);
+  }
+  80% {
+    transform: scale(1.06) rotate(-2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* ── Verified ribbon (Certifications) ────────────────────────────────
+   The corner badge pinned across the credentials card's upper-right
+   corner. Base state (no transform override — the diagonal -45deg
+   rotation baked into keyframe 100%) already equals the animation's own
+   resting frame, so pre-hydration/no-JS/reduced-motion output all show
+   the ribbon already in place, same convention as the seal above. */
+
+.verified-ribbon {
+  transform: rotate(-45deg);
+  transform-origin: center;
+}
+
+.verified-ribbon--dropped {
+  animation: ribbon-drop 0.6s cubic-bezier(0.22, 1.4, 0.4, 1) both;
+}
+
+@keyframes ribbon-drop {
+  0% {
+    opacity: 0;
+    transform: rotate(-45deg) translateY(-26px) scale(0.75);
+  }
+  65% {
+    opacity: 1;
+    transform: rotate(-45deg) translateY(3px) scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(-45deg) translateY(0) scale(1);
+  }
+}
+
+/* A quiet satin sheen sweeping across the ribbon on a loop, after it
+   lands — an ambient detail on an otherwise static object (same register
+   as StatusDot's live pulse), not a second competing motion beat. */
+.verified-ribbon-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.45) 48%,
+    transparent 66%
+  );
+  transform: translateX(-100%);
+  animation: ribbon-shimmer 3.4s ease-in-out 1.1s infinite;
+}
+
+@keyframes ribbon-shimmer {
+  0%,
+  55% {
+    transform: translateX(-100%);
+  }
+  85%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ── Project glyphs (For fun) ─────────────────────────────────────────
+   Small per-project hover/tap-triggered accents — see ProjectGlyph.tsx
+   for what each one is grounded in. Pure CSS, no JS: the trigger is a
+   plain :hover/:active pseudo-class, so this works even with JavaScript
+   disabled entirely. Every element's resting state (no class override)
+   is already the complete static shape these glyphs showed before this
+   pass, so SSR/no-JS/pre-hydration output is unaffected.
+
+   Every keyframe below starts AND ends at that same resting state (a
+   "dip and return," not a toggle), which means the sitewide
+   prefers-reduced-motion rule further down this file — which only
+   speeds animations up to ~0ms rather than removing them — would
+   collapse these to an imperceptible no-op blink on its own. So each
+   glyph also gets its own reduced-motion override here that swaps the
+   keyframe animation for a plain, instant pose/color swap on
+   :hover/:active instead, mirroring DeskSetupModel.tsx's click-reaction
+   convention: a reduced-motion visitor still gets a real, brief reaction
+   to hovering/tapping, just not an eased one. */
+
+.move-arm {
+  transform-origin: 0px 0px;
+}
+
+.project-glyph-move:hover .move-arm,
+.project-glyph-move:active .move-arm {
+  animation: move-arm-raise 0.9s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+@keyframes move-arm-raise {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-150deg);
+  }
+  72% {
+    transform: rotate(-132deg);
+  }
+}
+
+.move-check {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+.project-glyph-move:hover .move-check,
+.project-glyph-move:active .move-check {
+  animation: move-check-flash 0.9s ease-out;
+}
+
+@keyframes move-check-flash {
+  0%,
+  40% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  56% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  68% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-glyph-move:hover .move-arm,
+  .project-glyph-move:active .move-arm {
+    animation: none;
+    transform: rotate(-140deg);
+  }
+
+  .project-glyph-move:hover .move-check,
+  .project-glyph-move:active .move-check {
+    animation: none;
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.earth-bar-a,
+.earth-bar-b,
+.earth-bar-c {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+.project-glyph-earth:hover .earth-bar-a,
+.project-glyph-earth:active .earth-bar-a {
+  animation: earth-bar-dip 0.9s ease-in-out;
+}
+
+.project-glyph-earth:hover .earth-bar-b,
+.project-glyph-earth:active .earth-bar-b {
+  animation: earth-bar-rise 0.9s ease-in-out 0.08s;
+}
+
+.project-glyph-earth:hover .earth-bar-c,
+.project-glyph-earth:active .earth-bar-c {
+  animation: earth-bar-crit 0.9s ease-in-out 0.16s;
+}
+
+@keyframes earth-bar-dip {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  45% {
+    transform: scaleY(0.55);
+  }
+  72% {
+    transform: scaleY(1.08);
+  }
+}
+
+@keyframes earth-bar-rise {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  45% {
+    transform: scaleY(1.3);
+  }
+  72% {
+    transform: scaleY(0.85);
+  }
+}
+
+@keyframes earth-bar-crit {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  45% {
+    transform: scaleY(0.3);
+  }
+  72% {
+    transform: scaleY(0.9);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-glyph-earth:hover .earth-bar-a,
+  .project-glyph-earth:active .earth-bar-a {
+    animation: none;
+    transform: scaleY(0.6);
+  }
+
+  .project-glyph-earth:hover .earth-bar-b,
+  .project-glyph-earth:active .earth-bar-b {
+    animation: none;
+    transform: scaleY(1.15);
+  }
+
+  .project-glyph-earth:hover .earth-bar-c,
+  .project-glyph-earth:active .earth-bar-c {
+    animation: none;
+    transform: scaleY(0.3);
+  }
+}
+
+.scrape-node,
+.scrape-edge {
+  fill: #888d92;
+}
+
+.scrape-node {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.scrape-node-center {
+  fill: var(--signal);
+}
+
+.project-glyph-scrape:hover .scrape-node-center,
+.project-glyph-scrape:active .scrape-node-center {
+  animation: scrape-node-pulse-center 0.6s ease-in-out;
+}
+
+.project-glyph-scrape:hover .scrape-edge-stem,
+.project-glyph-scrape:active .scrape-edge-stem {
+  animation: scrape-edge-glow 0.6s ease-in-out 0.05s;
+}
+
+.project-glyph-scrape:hover .scrape-edge-bar,
+.project-glyph-scrape:active .scrape-edge-bar {
+  animation: scrape-edge-glow 0.6s ease-in-out 0.1s;
+}
+
+.project-glyph-scrape:hover .scrape-node-top,
+.project-glyph-scrape:active .scrape-node-top {
+  animation: scrape-node-pulse 0.6s ease-in-out 0.12s;
+}
+
+.project-glyph-scrape:hover .scrape-edge-l,
+.project-glyph-scrape:active .scrape-edge-l,
+.project-glyph-scrape:hover .scrape-edge-r,
+.project-glyph-scrape:active .scrape-edge-r {
+  animation: scrape-edge-glow 0.6s ease-in-out 0.14s;
+}
+
+.project-glyph-scrape:hover .scrape-node-l,
+.project-glyph-scrape:active .scrape-node-l,
+.project-glyph-scrape:hover .scrape-node-r,
+.project-glyph-scrape:active .scrape-node-r {
+  animation: scrape-node-pulse 0.6s ease-in-out 0.2s;
+}
+
+@keyframes scrape-node-pulse-center {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.55);
+  }
+  72% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes scrape-node-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    fill: #888d92;
+  }
+  45% {
+    transform: scale(1.4);
+    fill: var(--signal);
+  }
+  72% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes scrape-edge-glow {
+  0%,
+  100% {
+    fill: #888d92;
+    opacity: 0.85;
+  }
+  45% {
+    fill: var(--signal);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-glyph-scrape:hover .scrape-node,
+  .project-glyph-scrape:active .scrape-node {
+    animation: none;
+    fill: var(--signal);
+    transform: scale(1.2);
+  }
+
+  .project-glyph-scrape:hover .scrape-edge,
+  .project-glyph-scrape:active .scrape-edge {
+    animation: none;
+    fill: var(--signal);
+    opacity: 1;
+  }
+}
+
+/* ── Per-section background wash ────────────────────────────────────
+   Client ask: "different background colors for each section... vibe of
+   section." Kept in the site's own restrained register rather than
+   blocks of solid color: a faint, FLAT tint in each section's own
+   ALREADY-ESTABLISHED accent (the same colors the hero's word-cycle, the
+   Experience rail, the Valkrix aurora, etc. already use elsewhere on the
+   page) sitting behind the content. `--void` stays the dominant color
+   throughout — this is a mood shift per section, not a rainbow page.
+   `isolation: isolate` gives each section its own stacking context so the
+   wash's z-index:-1 pseudo-element stays behind that section's own
+   content without fighting the page's global stacking order (the fixed
+   CornerNav, etc.).
+   A flat fill rather than a top-anchored radial glow on purpose: an
+   earlier version faded to fully transparent by ~72% down from the top of
+   each section's own box, which for a SHORT section like the closing
+   "Let's talk" read as a clear wash, but for a TALL, content-heavy
+   section like Ventures or Off-duty meant the tint vanished well before a
+   visitor scrolled past the section's own heading — "a vibe per section"
+   needs to actually hold while you're inside that section, not just
+   flash at its top edge. */
+
+.section-wash {
+  position: relative;
+  isolation: isolate;
+}
+
+.section-wash::before {
+  content: "";
+  position: absolute;
+  /* Full-bleed break-out: sections live inside <main class="max-w-4xl
+     mx-auto">, so a plain `inset: 0` wash only ever covered that centered
+     content column — client follow-up: "boxed with black spaces on the
+     side... spread horizontally fully." top/bottom stay scoped to this
+     section's own height; left/right use the standard "break out of a
+     centered container" trick (offset to the viewport's horizontal
+     center, then pull back out by half the viewport width) so the tint
+     spans true edge-to-edge regardless of how narrow the text column
+     above it is. */
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  width: 100vw;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--wash);
+}
+
+.wash-about {
+  --wash: rgba(245, 243, 238, 0.05);
+} /* paper-neutral — "home base," spans all four identity facets */
+.wash-experience {
+  --wash: rgba(53, 232, 184, 0.07);
+} /* signal mint — data/audit/spaceship */
+.wash-ventures {
+  --wash: rgba(168, 93, 232, 0.065);
+} /* Valkrix violet */
+.wash-projects {
+  --wash: rgba(76, 211, 255, 0.055);
+} /* console cyan — playful, ties to the gaming/tech glyphs */
+.wash-skills {
+  --wash: rgba(136, 141, 146, 0.06);
+} /* neutral dim — the stack itself is the color (marquee chips) */
+.wash-certifications {
+  --wash: rgba(53, 232, 184, 0.065);
+} /* signal mint — matches the verified seal */
+.wash-education {
+  --wash: rgba(201, 205, 209, 0.065);
+} /* cool silver — the medal */
+.wash-offduty {
+  --wash: rgba(232, 114, 12, 0.05);
+} /* court orange — the most personal/energetic section */
+.wash-contact {
+  --wash: rgba(53, 232, 184, 0.08);
+} /* signal mint, brightest of all — the journey's arrival */
+
+/* ── Motion ──────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* The global rule above would otherwise compress the word-cycle loop
+     into a ~0ms strobe (still "motion", just fast) rather than actually
+     removing it — collapse it to a plain static list of all words
+     instead, so no information is lost and nothing moves at all. */
+  .word-cycle {
+    display: inline;
+    height: auto;
+    overflow: visible;
+    white-space: normal;
+  }
+
+  .word-cycle-item {
+    position: static;
+    display: inline;
+    white-space: normal;
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+
+  .word-cycle-item:not(:last-child)::after {
+    content: " · ";
+  }
+
+  .word-cycle-sizer {
+    display: none;
+  }
+}
+
+/* ── Access console (Experience) ─────────────────────────────────────
+   Entrance for a freshly-appended audit-trail line in AccessConsole.tsx.
+   Only ever applied to entries added live via a click (see `isNew` in
+   that component) — the static base trail (no JS/first paint) renders
+   with no animation class at all, so SSR/no-JS output is already the
+   plain, correct resting list. Component-side also skips this under
+   prefers-reduced-motion; the sitewide rule below additionally collapses
+   it to a ~0ms frame as a second guard, same double-gating convention as
+   VerifiedSeal's stamp-in. */
+.access-log-enter {
+  animation: access-log-enter 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes access-log-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* One-shot rejection shake on the access-result padlock when a live
+   check resolves to DENY (AccessConsole.tsx) — keyed there by the
+   resolved result's log-entry key so identical back-to-back denials
+   still replay it. Component only applies this class when
+   !prefersReduced; the sitewide reduced-motion rule above additionally
+   collapses its duration to ~0ms as a second guard, same double-gating
+   convention as access-log-enter above. */
+.access-lock-shake {
+  animation: access-lock-shake 0.4s ease-in-out;
+}
+
+@keyframes access-lock-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-3px);
+  }
+  40% {
+    transform: translateX(3px);
+  }
+  60% {
+    transform: translateX(-2px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
 }
