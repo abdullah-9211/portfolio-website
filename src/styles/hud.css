@@ -1,0 +1,655 @@
+/* A ceremonial banner: a dark band across the screen with gold serif capitals. */
+.banner {
+  display: grid;
+  place-items: center;
+  padding-block: 1.1rem;
+  pointer-events: none;
+  text-align: center;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(4 7 12 / 0.82) 18%,
+    rgb(4 7 12 / 0.82) 82%,
+    transparent
+  );
+}
+.banner span {
+  font-family: var(--font-display), serif;
+  font-size: clamp(1.5rem, 3.6vw, 3rem);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--gold);
+  text-shadow: 0 0 28px rgb(216 184 120 / 0.35);
+}
+
+/* ── HUD bar ──────────────────────────────────────────────────────── */
+
+.hud {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem var(--gutter);
+  pointer-events: none;
+  opacity: 0;
+  transform: translate3d(0, -8px, 0);
+  transition:
+    opacity 320ms var(--ease-out),
+    transform 320ms var(--ease-out);
+  background: linear-gradient(rgb(7 12 20 / 0.86), rgb(7 12 20 / 0));
+}
+.hud[data-visible="true"] {
+  opacity: 1;
+  transform: none;
+}
+.hud[data-visible="true"] > * {
+  pointer-events: auto;
+}
+.hud[data-visible="false"] {
+  visibility: hidden;
+  transition:
+    opacity 200ms var(--ease-out),
+    transform 200ms var(--ease-out),
+    visibility 0s 200ms;
+}
+
+.hud-sigil {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid color-mix(in oklab, var(--parch) 40%, transparent);
+  border-radius: 50%;
+  font-family: var(--font-display), serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  color: var(--parch);
+  background: rgb(7 12 20 / 0.6);
+}
+.hud-location {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  min-width: 0;
+  font-size: var(--t-small);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--parch);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hud-numeral {
+  font-family: var(--font-display), serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--region);
+  transition: color 600ms var(--ease-out);
+}
+.hud-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.hud-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0 0.9rem;
+  border: 1px solid color-mix(in oklab, var(--parch) 28%, transparent);
+  border-radius: var(--radius);
+  background: rgb(7 12 20 / 0.6);
+  color: var(--parch);
+  font-size: var(--t-small);
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    border-color 160ms var(--ease-out),
+    background-color 160ms var(--ease-out);
+}
+.hud-btn .trophy-glyph {
+  color: var(--gold);
+}
+@media (hover: hover) and (pointer: fine) {
+  .hud-btn:hover,
+  .hud-sigil:hover {
+    border-color: var(--parch);
+    background: rgb(14 26 43 / 0.9);
+  }
+}
+@media (max-width: 520px) {
+  .hud-btn-map .keycap {
+    display: none;
+  }
+}
+
+/* ── Minimap ──────────────────────────────────────────────────────── */
+
+.minimap {
+  position: fixed;
+  right: clamp(1rem, 2.5vw, 2rem);
+  bottom: clamp(1rem, 2.5vw, 2rem);
+  z-index: 55;
+  width: 8.5rem;
+  height: 8.5rem;
+  border-radius: 50%;
+  border: 1px solid color-mix(in oklab, var(--rune) 55%, transparent);
+  background: rgb(9 18 31 / 0.92);
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.95);
+  transition:
+    opacity 300ms var(--ease-out),
+    transform 300ms var(--ease-out),
+    visibility 0s 300ms;
+  box-shadow:
+    0 0 0 4px rgb(7 12 20 / 0.7),
+    0 10px 30px rgb(0 0 0 / 0.5);
+  display: none;
+}
+@media (min-width: 1100px) and (min-height: 640px) {
+  .minimap {
+    display: block;
+  }
+}
+.minimap[data-visible="true"] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    opacity 300ms var(--ease-out),
+    transform 300ms var(--ease-out);
+}
+.minimap-world {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  will-change: transform;
+  pointer-events: none;
+}
+.minimap-world .world-map {
+  width: 100%;
+  height: 100%;
+}
+.minimap-arrow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: -10px 0 0 -10px;
+  width: 20px;
+  height: 20px;
+  transition: transform 160ms linear;
+}
+.minimap-arrow path {
+  fill: var(--parch);
+  stroke: var(--abyss);
+  stroke-width: 1.5;
+}
+
+/* ── World map ────────────────────────────────────────────────────── */
+
+.world-map {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.map-route-planned {
+  fill: none;
+  stroke: color-mix(in oklab, var(--ember) 70%, transparent);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  transition: opacity 400ms var(--ease-out);
+}
+.map-route-side {
+  fill: none;
+  stroke: color-mix(in oklab, var(--ember) 45%, transparent);
+  stroke-width: 2;
+  stroke-dasharray: 3 9;
+  stroke-linecap: round;
+  transition: opacity 400ms var(--ease-out);
+}
+.map-route-walked {
+  fill: none;
+  stroke: var(--rune);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px rgb(95 212 230 / 0.7));
+  transition: opacity 400ms var(--ease-out);
+}
+.map-marker {
+  --state: var(--ember);
+  cursor: pointer;
+  text-decoration: none;
+  outline: none;
+  opacity: 0;
+  transition: opacity 500ms var(--ease-out);
+}
+.map-marker[data-shown="true"] {
+  opacity: 1;
+}
+.map-marker[data-found="true"] {
+  --state: var(--rune);
+}
+.map-marker-hit {
+  fill: transparent;
+}
+.map-marker-ring {
+  fill: var(--abyss);
+  stroke: var(--state);
+  stroke-width: 2.5;
+  transition: stroke 500ms var(--ease-out);
+}
+.map-marker-core {
+  fill: var(--state);
+  transition: fill 500ms var(--ease-out);
+}
+.map-marker[data-found="false"] .map-marker-core {
+  fill: none;
+  stroke: var(--state);
+  stroke-width: 2;
+}
+.map-marker-pulse {
+  fill: none;
+  stroke: var(--state);
+  stroke-width: 1.5;
+  opacity: 0.6;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: marker-pulse 2.4s var(--ease-out) infinite;
+}
+@keyframes marker-pulse {
+  from {
+    transform: scale(0.6);
+    opacity: 0.8;
+  }
+  to {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+.map-marker-name {
+  fill: var(--parch);
+  font-family: var(--font-display), serif;
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  paint-order: stroke;
+  stroke: var(--abyss);
+  stroke-width: 6px;
+  stroke-linejoin: round;
+}
+.map-marker-note {
+  fill: var(--mist);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  paint-order: stroke;
+  stroke: var(--abyss);
+  stroke-width: 5px;
+  stroke-linejoin: round;
+}
+.map-marker:focus-visible .map-marker-ring {
+  stroke: var(--parch);
+  stroke-width: 4;
+}
+@media (hover: hover) and (pointer: fine) {
+  .map-marker:hover .map-marker-ring {
+    stroke: var(--parch);
+  }
+  .map-marker:hover .map-marker-name {
+    fill: #fff;
+  }
+}
+.world-map-compact .map-marker {
+  opacity: 1;
+}
+.world-map-compact .map-route-planned,
+.world-map-compact .map-route-walked {
+  stroke-width: 6;
+}
+.world-map-compact .map-marker-ring {
+  r: 22px;
+  stroke-width: 5;
+}
+
+/* ── Toasts ───────────────────────────────────────────────────────── */
+
+.toasts {
+  position: fixed;
+  left: 50%;
+  bottom: clamp(0.75rem, 2.5vw, 1.75rem);
+  translate: -50% 0;
+  z-index: 58;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  pointer-events: none;
+  width: max-content;
+  max-width: calc(100vw - 1.5rem);
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.5rem 1.1rem 0.5rem 0.55rem;
+  border: 1px solid color-mix(in oklab, var(--parch) 26%, transparent);
+  border-radius: 999px;
+  background: rgb(8 15 26 / 0.95);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.5);
+  animation: toast-in 420ms var(--ease-out) both;
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+}
+.toast-icon {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  color: var(--rune);
+  flex: none;
+}
+.toast[data-kind="trophy"] .toast-icon {
+  color: var(--gold);
+}
+.toast-text {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.6rem;
+  line-height: 1.25;
+}
+.toast-kicker {
+  font-size: var(--t-micro);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--mist);
+}
+.toast-title {
+  font-family: var(--font-display), serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+.toast-detail {
+  display: none;
+}
+
+/* ── Pause menu ───────────────────────────────────────────────────── */
+
+.slate {
+  width: 100vw;
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--parch);
+  overflow: hidden;
+}
+.slate::backdrop {
+  background: rgb(4 8 14 / 0.9);
+  backdrop-filter: blur(10px);
+}
+.slate[open] .slate-panel {
+  animation: slate-in 380ms var(--ease-out) both;
+}
+@keyframes slate-in {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+}
+.slate-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: clamp(1rem, 3vw, 2.5rem) var(--gutter);
+  gap: clamp(1rem, 2vw, 1.75rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.slate-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.slate-title {
+  font-size: clamp(2.25rem, 5vw, 4rem);
+  letter-spacing: 0.08em;
+}
+.slate-body {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 4rem);
+}
+.slate-map {
+  min-height: 0;
+}
+.slate-map .world-map {
+  width: 100%;
+  height: auto;
+  max-height: 70dvh;
+}
+.slate-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+  font-size: var(--t-small);
+  color: var(--mist);
+}
+.legend-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  border: 2px solid var(--ember);
+  margin-left: 0.5rem;
+}
+.legend-dot:first-child {
+  margin-left: 0;
+}
+.legend-found {
+  border-color: var(--rune);
+  background: var(--rune);
+}
+.slate-count {
+  margin-left: auto;
+}
+.slate-lists {
+  display: grid;
+  gap: 1.75rem;
+  align-content: start;
+}
+.slate-h {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--contour);
+  font-size: var(--t-small);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mist);
+}
+.slate-h-count {
+  color: var(--gold);
+}
+.slate-travel,
+.slate-games {
+  display: grid;
+}
+.slate-travel {
+  grid-template-columns: repeat(auto-fill, minmax(11.5rem, 1fr));
+}
+.slate-travel button,
+.slate-games button {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: var(--radius);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 140ms var(--ease-out);
+}
+.slate-numeral {
+  width: 1.5rem;
+  font-family: var(--font-display), serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--rune);
+}
+.slate-games button {
+  flex-direction: column;
+  gap: 0;
+}
+.slate-game-name {
+  font-family: var(--font-display), serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.15;
+}
+.slate-game-note {
+  font-size: var(--t-small);
+  color: var(--mist);
+}
+@media (hover: hover) and (pointer: fine) {
+  .slate-travel button:hover,
+  .slate-games button:hover {
+    background: var(--slate-2);
+  }
+}
+.slate-trophies {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 0.35rem 1rem;
+}
+.slate-trophies li {
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-start;
+  padding: 0.4rem 0;
+  color: var(--mist);
+}
+.slate-trophies li .trophy-glyph {
+  margin-top: 0.3rem;
+  flex: none;
+  opacity: 0.5;
+}
+.slate-trophies li[data-earned="true"] {
+  color: var(--parch);
+}
+.slate-trophies li[data-earned="true"] .trophy-glyph {
+  color: var(--gold);
+  opacity: 1;
+}
+.slate-trophy-title {
+  display: block;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.slate-trophy-detail {
+  display: block;
+  font-size: var(--t-small);
+  color: var(--mist);
+  line-height: 1.4;
+}
+.slate-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  margin-top: 0.75rem;
+}
+.slate-link {
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  color: var(--parch);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.slate-link[disabled] {
+  color: var(--mist);
+  text-decoration: none;
+  cursor: default;
+}
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 2.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.switch-track {
+  width: 2.75rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  background: var(--contour);
+  padding: 3px;
+  transition: background-color 180ms var(--ease-out);
+}
+.switch-thumb {
+  display: block;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 50%;
+  background: var(--parch);
+  transition: transform 180ms var(--ease-out);
+}
+.switch[aria-checked="true"] .switch-track {
+  background: var(--rune);
+}
+.switch[aria-checked="true"] .switch-thumb {
+  transform: translateX(1.25rem);
+  background: var(--abyss);
+}
+
+@media (min-width: 1000px) {
+  .slate-body {
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    flex: 1;
+    min-height: 0;
+  }
+  .slate-map .world-map {
+    max-height: calc(100dvh - 13rem);
+  }
+  .slate-lists {
+    overflow-y: auto;
+    padding-right: 0.5rem;
+  }
+  .slate-panel {
+    overflow: hidden;
+  }
+}
+
+/* The minimap steps aside while a game is being played. */
+body:has(.game[data-game-active="true"]) .minimap {
+  opacity: 0;
+  visibility: hidden;
+}
+body:has(.game[data-game-active="true"]) .toasts {
+  display: none;
+}

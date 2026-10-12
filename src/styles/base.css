@@ -1,0 +1,243 @@
+html {
+  color-scheme: dark;
+  background: var(--abyss);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--abyss);
+  color: var(--parch);
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: var(--t-body);
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+  overflow-x: clip;
+}
+
+::selection {
+  background: var(--ember);
+  color: var(--ember-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+a {
+  text-underline-offset: 0.22em;
+  text-decoration-thickness: 1px;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 200;
+  padding: 0.6rem 1rem;
+  background: var(--ember);
+  color: var(--ember-ink);
+  font-weight: 700;
+  border-radius: var(--radius);
+  transform: translateY(-200%);
+}
+.skip-link:focus-visible {
+  transform: none;
+}
+
+/* ── Type roles ───────────────────────────────────────────────────── */
+
+.display {
+  font-family: var(--font-display), "Times New Roman", serif;
+  font-weight: 500;
+  line-height: 0.92;
+  letter-spacing: -0.012em;
+}
+
+.display-caps {
+  font-family: var(--font-display), "Times New Roman", serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  line-height: 0.9;
+  letter-spacing: 0.02em;
+}
+
+.lede {
+  font-size: var(--t-lede);
+  line-height: 1.55;
+  max-width: 34ch;
+}
+
+.body {
+  max-width: var(--measure);
+  color: color-mix(in oklab, var(--parch) 82%, var(--abyss));
+}
+
+.label {
+  font-size: var(--t-small);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--mist);
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────── */
+
+/* Buttons are cut like plaques: two notched corners, parchment for the
+   main action and a thin line for everything else. */
+.btn {
+  --notch: 9px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6em;
+  min-height: 2.9rem;
+  padding: 0.7rem 1.6rem;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  clip-path: polygon(var(--notch) 0, 100% 0, 100% calc(100% - var(--notch)), calc(100% - var(--notch)) 100%, 0 100%, 0 var(--notch));
+  transition:
+    background-color 180ms var(--ease-out),
+    color 180ms var(--ease-out),
+    transform 120ms var(--ease-out);
+}
+.btn:active {
+  transform: scale(0.97);
+}
+.btn-primary {
+  background: var(--parch);
+  color: var(--abyss);
+}
+.btn-ghost {
+  color: var(--parch);
+  background: color-mix(in oklab, var(--abyss) 55%, transparent);
+  backdrop-filter: blur(6px);
+}
+/* A clipped element cannot show a border, so the outline is drawn inside it. */
+.btn-ghost::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: color-mix(in oklab, var(--parch) 55%, transparent);
+  clip-path: polygon(
+    var(--notch) 0, 100% 0, 100% calc(100% - var(--notch)), calc(100% - var(--notch)) 100%, 0 100%, 0 var(--notch), var(--notch) 0,
+    calc(var(--notch) + 0.5px) 1px, 1px calc(var(--notch) + 0.5px), 1px calc(100% - 1px), calc(100% - var(--notch) - 0.5px) calc(100% - 1px), calc(100% - 1px) calc(100% - var(--notch) - 0.5px), calc(100% - 1px) 1px, calc(var(--notch) + 0.5px) 1px
+  );
+  transition: background-color 180ms var(--ease-out);
+  pointer-events: none;
+}
+.btn:focus-visible {
+  outline: none;
+  box-shadow: none;
+  background: var(--rune);
+  color: var(--abyss);
+}
+.btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+@media (hover: hover) and (pointer: fine) {
+  .btn-primary:hover {
+    background: #fff;
+  }
+  .btn-ghost:hover {
+    background: color-mix(in oklab, var(--parch) 14%, var(--abyss));
+  }
+  .btn-ghost:hover::before {
+    background: var(--parch);
+  }
+}
+
+/* A key hint drawn like a controller prompt. */
+.keycap {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.5em;
+  height: 1.5em;
+  padding: 0 0.35em;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  font-size: 0.72em;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0.8;
+}
+
+@media (hover: none) {
+  .keycap {
+    display: none;
+  }
+}
+
+/* ── Scroll acts ──────────────────────────────────────────────────── */
+
+.act {
+  position: relative;
+  height: calc(var(--span, 1) * 100svh);
+}
+.act-stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 96rem;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.grain {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

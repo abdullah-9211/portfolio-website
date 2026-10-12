@@ -1,0 +1,275 @@
+/* ── Title screen ─────────────────────────────────────────────────────
+   The photograph is 1200 x 1600. `--fh` is the height its frame is drawn
+   at, and every plane is laid out against that frame so the photo, its
+   cut-outs and their map versions all register. */
+
+.vista-stage {
+  --fh: 100svh;
+  --fw: calc(var(--fh) * 0.75);
+  --fx: 50%;
+  --mx: 0;
+  --my: 0;
+  --push: 0;
+  --copy: 1;
+  --settle: 0;
+  position: absolute;
+  inset: 0;
+  background: var(--abyss);
+  color: #fbf8f0;
+}
+
+@media (min-width: 1000px) and (min-aspect-ratio: 5/4) {
+  .vista-stage {
+    --fh: 128svh;
+    --fx: 61%;
+  }
+}
+
+.vista-day,
+.vista-night {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.vista-night {
+  visibility: hidden;
+  clip-path: inset(0 0 100% 0);
+}
+.vista-night-ground {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 80% at 60% 55%, #0c1a2c 0%, var(--abyss) 70%), var(--abyss);
+}
+
+/* Sky colours sampled from the photograph, so the CSS sky and the photo's sky are the same sky. */
+.vista-sky {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    #3a6094 0,
+    #3f6699 calc(var(--fh) * 0.02),
+    #4872a4 calc(var(--fh) * 0.125),
+    #5682af calc(var(--fh) * 0.25),
+    #6790ba calc(var(--fh) * 0.33),
+    #5d86b3 calc(var(--fh) * 0.42)
+  );
+}
+
+/* Below the horizon and away from the photograph the land falls into deep blue shadow. */
+.vista-depths {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(var(--fh) * 0.36);
+  bottom: 0;
+  background: linear-gradient(#5d86b3 0, #3d6497 16%, #1f3b63 42%, #0c1a2e 74%, var(--abyss) 100%);
+}
+
+.vista-frame {
+  position: absolute;
+  top: 0;
+  left: var(--fx);
+  width: var(--fw);
+  height: var(--fh);
+  margin-left: calc(var(--fw) / -2);
+}
+.vista-plane {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 62%;
+  will-change: transform;
+}
+.vista-plane img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+}
+.vista-pano {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 300%;
+  height: 100%;
+  display: flex;
+  /* Keep the whole ridgeline, but below it only the middle photograph: the
+     side copies fade into shadow so the foreground is not visibly repeated. */
+  mask-image:
+    linear-gradient(#000 0, #000 39%, transparent 49%),
+    linear-gradient(
+      90deg,
+      transparent 34.5%,
+      rgb(0 0 0 / 0.35) 38%,
+      #000 44%,
+      #000 56.5%,
+      rgb(0 0 0 / 0.35) 62%,
+      transparent 66%
+    );
+  mask-composite: add;
+}
+.vista-pano img {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.vista-pano-flip {
+  transform: scaleX(-1);
+}
+.vista-plane-ridge {
+  transform: translate3d(calc(var(--mx) * -9px), calc(var(--my) * -5px + var(--push) * -2svh), 0)
+    scale(calc(1.02 + var(--push) * 0.05));
+}
+.vista-plane-subject {
+  transform-origin: 50% 100%;
+  transform: translate3d(calc(var(--mx) * -22px), calc(var(--my) * -8px + var(--push) * 3svh), 0)
+    scale(calc(1.02 + var(--push) * 0.14));
+}
+
+/* The name sits behind the mountain: its second line is partly hidden by the peak. */
+.vista-name {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(var(--fh) * 0.075);
+  padding-inline: var(--gutter);
+  font-size: clamp(3.25rem, 15.2vw, 6.5rem);
+  line-height: 0.86;
+  letter-spacing: 0.035em;
+  transform: translate3d(calc(var(--mx) * 4px), calc(var(--push) * -5svh), 0);
+  text-shadow: 0 2px 34px rgb(20 44 84 / 0.45);
+}
+.vista-name span {
+  display: block;
+}
+.vista-name-last {
+  text-align: right;
+}
+.vista-name-outlined {
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in oklab, var(--rune) 85%, transparent);
+  text-shadow: none;
+}
+
+@media (min-width: 1000px) and (min-aspect-ratio: 5/4) {
+  .vista-name {
+    top: 6svh;
+    font-size: min(12.2vw, 30svh);
+  }
+  .vista-name-last {
+    padding-right: 2vw;
+  }
+}
+
+.vista-mist {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: calc(1 - var(--push) * 0.5);
+}
+.vista-mist span {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(226 236 248 / 0.55), rgb(226 236 248 / 0));
+  filter: blur(18px);
+  animation: mist-drift 46s linear infinite alternate;
+}
+.vista-mist span:nth-child(1) {
+  left: calc(var(--fx) - var(--fw) * 0.5 - 24vw);
+  top: calc(var(--fh) * 0.3);
+  width: 48vw;
+  height: 20svh;
+}
+.vista-mist span:nth-child(2) {
+  right: -18%;
+  top: calc(var(--fh) * 0.38);
+  width: 54vw;
+  height: 20svh;
+  animation-duration: 58s;
+  animation-direction: alternate-reverse;
+}
+.vista-mist span:nth-child(3) {
+  left: 18%;
+  bottom: -8svh;
+  width: 80vw;
+  height: 26svh;
+  opacity: 0.5;
+  animation-duration: 70s;
+}
+@keyframes mist-drift {
+  from {
+    transform: translate3d(-4vw, 0, 0);
+  }
+  to {
+    transform: translate3d(6vw, -1svh, 0);
+  }
+}
+
+.vista-scan {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 2px;
+  margin-top: -1px;
+  opacity: 0;
+  background: var(--rune);
+  box-shadow:
+    0 0 18px 2px rgb(95 212 230 / 0.8),
+    0 -40px 60px 10px rgb(95 212 230 / 0.12);
+  will-change: transform;
+}
+
+.vista-floor {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 22svh;
+  pointer-events: none;
+  background: linear-gradient(transparent, rgb(7 12 20 / 0.7) 70%, var(--abyss));
+}
+
+.vista-copy {
+  position: absolute;
+  inset-inline: 0;
+  bottom: clamp(1.5rem, 6svh, 4rem);
+  padding-inline: var(--gutter);
+  opacity: var(--copy);
+  transform: translate3d(0, calc((1 - var(--copy)) * -16px), 0);
+}
+.vista-stage[data-copy="off"] .vista-copy {
+  visibility: hidden;
+}
+.vista-tagline {
+  max-width: 21ch;
+  font-size: clamp(1.25rem, 2.1vw, 1.75rem);
+  line-height: 1.35;
+  font-weight: 500;
+  text-shadow: 0 1px 18px rgb(7 12 20 / 0.6);
+}
+.vista-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.vista-banner {
+  position: absolute;
+  inset-inline: 0;
+  top: 31svh;
+  opacity: var(--settle);
+  transform: scale(calc(1.04 - var(--settle) * 0.04));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vista-mist span {
+    animation: none;
+  }
+}
+
+@media not ((min-width: 1000px) and (min-aspect-ratio: 5/4)) {
+  .vista-floor {
+    height: 48svh;
+    background: linear-gradient(transparent, rgb(7 12 20 / 0.72) 55%, var(--abyss));
+  }
+  .vista-banner {
+    top: 25svh;
+  }
+}

@@ -1,0 +1,57 @@
+/* Design tokens for the story campaign.
+   The world is a night map: deep blue ground, contour lines, and two
+   state colours that mean one thing each. Ember marks what is still
+   ahead or can be acted on. Rune marks what has been discovered or
+   completed. Gold is reserved for ceremony (banners and trophies). */
+
+:root {
+  --abyss: #070c14;
+  --slate: #0e1a2b;
+  --slate-2: #142438;
+  --contour: #1d3350;
+  --parch: #ede6d6;
+  --mist: #93a4b8;
+  --ember: #f2a33a;
+  --ember-ink: #1a1206;
+  --rune: #5fd4e6;
+  --gold: #d8b878;
+  --danger: #ef6a5b;
+
+  /* The current region tints contour lines and markers. Chapters override it. */
+  --region: var(--rune);
+
+  --gutter: clamp(1.25rem, 5vw, 6rem);
+  --measure: 62ch;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --t-display: clamp(3.5rem, 11.5vw, 13rem);
+  --t-title: clamp(2.75rem, 7.2vw, 7.5rem);
+  --t-h2: clamp(2rem, 4.2vw, 3.75rem);
+  --t-h3: clamp(1.375rem, 2vw, 1.75rem);
+  --t-lede: clamp(1.1875rem, 1.6vw, 1.5rem);
+  --t-body: 1.0625rem;
+  --t-small: 0.875rem;
+  --t-micro: 0.75rem;
+
+  --radius: 6px;
+  --radius-lg: 14px;
+}
+
+@theme inline {
+  --color-abyss: var(--abyss);
+  --color-slate: var(--slate);
+  --color-slate-2: var(--slate-2);
+  --color-contour: var(--contour);
+  --color-parch: var(--parch);
+  --color-mist: var(--mist);
+  --color-ember: var(--ember);
+  --color-rune: var(--rune);
+  --color-gold: var(--gold);
+  --color-region: var(--region);
+
+  --font-display: var(--font-cormorant);
+  --font-body: var(--font-zen);
+  --font-mono: var(--font-jetbrains);
+}
